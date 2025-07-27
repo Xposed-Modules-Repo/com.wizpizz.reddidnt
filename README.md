@@ -29,3 +29,7 @@ Reddidn't is a [LSPosed](https://github.com/LSPosed/LSPosed) module that dynamic
 3. Install the APK on your device.
 4. Open LSPosed and enable the Reddidn't module. Make sure Reddit is enabled in the module scope.
 5. Restart Reddidn't if necessary.
+
+## Community
+- [Telegram Channel](https://t.me/reddidntapp)
+- [Telegram Discussion Group](https://t.me/reddidntappdiscussion)
