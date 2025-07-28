@@ -1,4 +1,6 @@
-![reddit_face_taped_mouth_orange_bg](https://github.com/user-attachments/assets/d2c4a227-a671-46b2-82a7-8662bee3458d)<div align="center">
+
+<div align="center">
+    <img src="https://github.com/user-attachments/assets/d2c4a227-a671-46b2-82a7-8662bee3458d" alt="reddit_face_taped_mouth_orange_bg" width="120"/>
 
 # Reddidn't
 
@@ -10,12 +12,15 @@
 
 Reddidn't is a [LSPosed](https://github.com/LSPosed/LSPosed) module that dynamically finds methods within the Reddit app responsible for displaying ads and blocks them.
 
-## Screenshots
+
+<details>
+<summary><strong>Screenshots</strong></summary>
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/37375c23-492f-4212-a0c6-7f2808d63ad9" alt="Screenshot 1" width="250"/>
     <img src="https://github.com/user-attachments/assets/6fe4bfda-d79f-419e-904b-cabcd525547f" alt="Screenshot 2" width="250"/>
 </p>
+</details>
 
 ## Features
 
