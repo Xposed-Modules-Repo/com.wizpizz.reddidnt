@@ -1,5 +1,5 @@
-<div align="center">
-  
+![reddit_face_taped_mouth_orange_bg](https://github.com/user-attachments/assets/d2c4a227-a671-46b2-82a7-8662bee3458d)<div align="center">
+
 # Reddidn't
 
 ### Fuck u/spez and his ads
