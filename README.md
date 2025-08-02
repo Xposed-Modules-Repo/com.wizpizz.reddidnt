@@ -14,7 +14,7 @@ Reddidn't is a [LSPosed](https://github.com/LSPosed/LSPosed) module that dynamic
 
 
 <details>
-<summary><strong>Screenshots</strong></summary>
+<summary><strong>Screenshots (CLICK HERE)</strong></summary>
 
 <p align="center">
     <img src="https://github.com/user-attachments/assets/37375c23-492f-4212-a0c6-7f2808d63ad9" alt="Screenshot 1" width="250"/>
@@ -55,4 +55,5 @@ Reddidn't is a [LSPosed](https://github.com/LSPosed/LSPosed) module that dynamic
 ## Community
 - [Telegram Channel](https://t.me/reddidntapp)
 - [Telegram Discussion Group](https://t.me/reddidntappdiscussion)
+
 
