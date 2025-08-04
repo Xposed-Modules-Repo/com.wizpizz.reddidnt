@@ -12,6 +12,7 @@
 
 Reddidn't is a [LSPosed](https://github.com/LSPosed/LSPosed) module that dynamically finds methods within the Reddit app responsible for displaying ads and blocks them.
 
+**Please star the repository, if you enjoy using the module! It goes a long way ⭐**
 
 <details>
 <summary><strong>Screenshots (CLICK HERE)</strong></summary>
