@@ -32,24 +32,25 @@ Reddidn't is a [LSPosed](https://github.com/LSPosed/LSPosed) module that dynamic
 
 ### Root | LSPosed
 
-1. Download the latest release from the [Releases page](https://github.com/Xposed-Modules-Repo/com.wizpizz.reddidnt/releases).
-2. Ensure you have LSPosed installed on your device.
+1. Make sure your device is rooted and you have LSPosed installed.
+2. Download the latest release from the [Releases page](https://github.com/Xposed-Modules-Repo/com.wizpizz.reddidnt/releases).
 3. Install the APK on your device.
-4. Open LSPosed and enable the Reddidn't module. Make sure Reddit is enabled in the module scope.
-5. Restart Reddidn't if necessary.
+4. Enable the module in the LSPosed manager and make sure Reddit is enabled in the scope settings.
+5. Restart Reddit and Reddidn't.
 
 ### Non-Root | LSPatch
 
 **No guarantee that this will work for you, the module was developed to be used with LSPosed in mind!**
 
-1. Download the latest release from the [Releases page](https://github.com/Xposed-Modules-Repo/com.wizpizz.reddidnt/releases).
-2. Install [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) and [LSPatch](https://github.com/JingMatrix/LSPatch/releases) (**MUST USE JINGMATRIX'S LSPATCH  FORK, OFFICIAL WON'T WORK**).
-3. Give LSPatch Shizuku permissions.
-4. In LSPatch, patch the Reddit app: **select LOCAL** while patching, DO NOT INTEGRATE and don't embed Reddidn't.
-5. Install the patched Reddit.
-6. Long press on Reddit in LSPatch and select "Module Scope".
-7. Select Reddidn't from the list.
-8. That's it. Restart Reddit and ads should be gone!
+1. Install [Shizuku](https://play.google.com/store/apps/details?id=moe.shizuku.privileged.api) and [LSPatch](https://github.com/JingMatrix/LSPatch/releases) (**MUST USE JINGMATRIX'S LSPATCH  FORK, OFFICIAL WON'T WORK**).
+2. Download the latest release from the [Releases page](https://github.com/Xposed-Modules-Repo/com.wizpizz.reddidnt/releases).
+3. Install the APK on your device.
+4. Give LSPatch Shizuku permissions.
+5. In LSPatch, patch the Reddit app: **select LOCAL** while patching, DO NOT INTEGRATE and don't embed Reddidn't.
+6. Install the patched Reddit.
+7. Long press on Reddit in LSPatch and select "Module Scope".
+8. Select Reddidn't from the list.
+9. That's it. Restart Reddit and ads should be gone!
 
 (Reddidn't will still stay "module not activated", ignore that. Toggling off ad blocking features in Reddidn't won't do anything, ads will always be blocked as long as Reddidn't is selected in the scope in LSPatch)
 
