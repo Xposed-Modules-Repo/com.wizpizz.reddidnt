@@ -25,8 +25,14 @@ Reddidn't is a [LSPosed](https://github.com/LSPosed/LSPosed) module that dynamic
 
 ## Features
 
-- **Block Promoted Posts**: Remove ads marked as "Promoted" from your feed.
-- **Block Comment Ads**: Hide ads above or inbetween comments.
+* Ad Blocking:
+    * **Block Promoted Posts**: Remove ads marked as "Promoted" from your feed.
+    * **Block Comment Ads**: Hide ads above or inbetween comments.
+* Premium:
+    * **Premium Spoofing**: Client-side premium perks (except no-ads)
+* Misc:
+    * **External Browser Redirect**: Open links in external browser
+
 
 ## Installation 
 
