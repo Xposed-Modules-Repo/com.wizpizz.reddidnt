@@ -6,9 +6,13 @@
 
 ### Fuck u/spez and his ads
 
+---
+
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Xposed-Modules-Repo/com.wizpizz.reddidnt/total)
+
+
 </div>
 
----
 
 Reddidn't is a [LSPosed](https://github.com/LSPosed/LSPosed) module that dynamically finds methods within the Reddit app responsible for displaying ads and blocks them.
 
