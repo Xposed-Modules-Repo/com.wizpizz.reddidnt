@@ -4,10 +4,6 @@
 
 # Reddidn't
 
-### Fuck u/spez and his ads
-
----
-
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/Xposed-Modules-Repo/com.wizpizz.reddidnt/total)
 
 
