@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen Colors -->
+    <color name="splash_background_light">#FFFCFCFC</color> <!-- Light background matching app theme -->
+    <color name="splash_background_dark">#FFFCFCFC</color> <!-- Default fallback, uses light theme color -->
+</resources>

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Reddidn\'t</string>
+    <string name="xposed_description">A focused Reddit ad blocker</string>
+</resources>

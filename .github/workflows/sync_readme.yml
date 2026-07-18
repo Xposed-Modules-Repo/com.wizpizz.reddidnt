@@ -1,0 +1,61 @@
+name: Sync README to Xposed Repo
+
+on:
+  workflow_dispatch: # Manual trigger
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'README.md'
+
+jobs:
+  sync-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout main repo
+      uses: actions/checkout@v4
+
+    - name: Checkout Xposed-Modules-Repo
+      uses: actions/checkout@v4
+      with:
+        repository: Xposed-Modules-Repo/com.wizpizz.reddidnt
+        token: ${{ secrets.XPOSED_REPO_TOKEN }}
+        path: xposed-repo
+
+    - name: Update README in Xposed repo
+      run: |
+        # Copy README from main repo to Xposed repo
+        cp README.md xposed-repo/README.md
+
+        # Commit and push the updated README
+        cd xposed-repo
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add README.md
+
+        # Only commit if there are changes
+        if git diff --staged --quiet; then
+          echo "No changes to README, skipping commit"
+        else
+          git commit -m "Sync README from main repo"
+          git push
+          echo "README synced successfully"
+        fi
+
+    - name: Summary
+      run: |
+        TRIGGER_TYPE="${{ github.event_name }}"
+        echo "## README Sync Results" >> $GITHUB_STEP_SUMMARY
+
+        if [ "$TRIGGER_TYPE" = "workflow_dispatch" ]; then
+          echo "🔧 **Manually triggered README sync**" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "🔄 **Automatic README sync** (triggered by README.md change)" >> $GITHUB_STEP_SUMMARY
+        fi
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ README synchronized to Xposed repository" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[View Xposed Repository](https://github.com/Xposed-Modules-Repo/com.wizpizz.reddidnt)" >> $GITHUB_STEP_SUMMARY

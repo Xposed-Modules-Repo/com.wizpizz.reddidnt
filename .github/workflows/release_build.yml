@@ -1,0 +1,152 @@
+name: Android Release Build
+
+on:
+  workflow_dispatch: # Allows manual triggering
+  push:
+    tags:
+      - 'v*.*.*' # Trigger on version tags like v1.0.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Grant permissions for creating releases and uploading assets
+    permissions:
+      contents: write
+    env:
+      XPOSED_REPO: Xposed-Modules-Repo/com.wizpizz.reddidnt
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Decode Keystore
+      id: decode_keystore
+      uses: timheuer/base64-to-file@v1.2
+      with:
+        fileName: 'release.keystore'
+        encodedString: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
+
+    - name: Build with Gradle
+      env:
+        SIGNING_KEY_STORE_PATH: ${{ steps.decode_keystore.outputs.filePath }}
+        SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+        SIGNING_KEY_STORE_PASSWORD: ${{ secrets.SIGNING_KEY_STORE_PASSWORD }}
+        SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+      run: ./gradlew assembleRelease
+
+    - name: Upload Release APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-apk
+        path: app/build/outputs/apk/release/app-release.apk
+        if-no-files-found: error
+
+    # Optional: Upload to GitHub Release (if triggered by tag)
+    - name: Fetch tag annotation and release notes
+      if: startsWith(github.ref, 'refs/tags/')
+      id: tag_data
+      run: |
+        # Fetch tags to ensure we have tag objects
+        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+        # Extract tag annotation message
+        TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+
+        # Also read the release.md file if it exists
+        if [ -f "notes/release.md" ]; then
+          RELEASE_NOTES=$(cat notes/release.md)
+        else
+          RELEASE_NOTES="$TAG_MESSAGE"
+        fi
+
+        # Output both for use in releases
+        {
+          echo 'annotation<<EOF'
+          echo "$TAG_MESSAGE"
+          echo 'EOF'
+        } >> $GITHUB_OUTPUT
+
+        {
+          echo 'release_notes<<EOF'
+          echo "$RELEASE_NOTES"
+          echo 'EOF'
+        } >> $GITHUB_OUTPUT
+
+    # Replaced actions/create-release and actions/upload-release-asset
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: ncipollo/release-action@v1
+      with:
+        # Use the tag name from the Git ref
+        tag: ${{ github.ref_name }}
+        # Use the tag name for the release name
+        name: ${{ github.ref_name }}
+        # Use the release.md content as the release body (preferred) or fallback to tag annotation
+        body: ${{ steps.tag_data.outputs.release_notes }}
+        # Path to the artifact to upload
+        artifacts: app/build/outputs/apk/release/app-release.apk
+        # The action defaults to using github.token, which is fine with permissions set
+        # token: ${{ secrets.GITHUB_TOKEN }}
+        # Mark as a production release (not draft or prerelease)
+        draft: false
+        prerelease: false
+        allowUpdates: true
+        replacesArtifacts: true
+
+    # Sync to Xposed-Modules-Repo (if triggered by tag)
+    - name: Read version information
+      if: startsWith(github.ref, 'refs/tags/')
+      id: version_info
+      run: |
+        # Read versionCode and versionName from app/build.gradle.kts
+        VERSION_CODE=$(sed -n 's/^[[:space:]]*versionCode[[:space:]]*=[[:space:]]*\([0-9]\+\).*/\1/p' app/build.gradle.kts | head -n1)
+        VERSION_NAME=$(sed -n 's/^[[:space:]]*versionName[[:space:]]*=[[:space:]]*"\(.*\)".*/\1/p' app/build.gradle.kts | head -n1)
+
+        if [ -z "$VERSION_CODE" ] || [ -z "$VERSION_NAME" ]; then
+          echo "❌ Could not read version information from app/build.gradle.kts"
+          exit 1
+        fi
+
+        echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+        echo "version_name=$VERSION_NAME" >> $GITHUB_OUTPUT
+        echo "xposed_tag=${VERSION_CODE}-${VERSION_NAME}" >> $GITHUB_OUTPUT
+
+    - name: Create release on Xposed-Modules-Repo
+      if: startsWith(github.ref, 'refs/tags/')
+      env:
+        GH_TOKEN: ${{ secrets.XPOSED_REPO_TOKEN }}
+      run: |
+        echo "Creating release on Xposed repository using GitHub CLI..."
+
+        # Create release body file
+        cat > release_body.md << 'EOF'
+
+        ${{ steps.tag_data.outputs.release_notes }}
+        EOF
+
+        # Create release using GitHub CLI
+        gh release create "${{ steps.version_info.outputs.xposed_tag }}" \
+          --repo "${{ env.XPOSED_REPO }}" \
+          --title "${{ github.ref_name }}" \
+          --notes-file "release_body.md" \
+          "app/build/outputs/apk/release/app-release.apk" || \
+        # If release exists, upload to existing release
+        gh release upload "${{ steps.version_info.outputs.xposed_tag }}" \
+          --repo "${{ env.XPOSED_REPO }}" \
+          --clobber \
+          "app/build/outputs/apk/release/app-release.apk"
+
+        # Clean up
+        rm -f release_body.md
+
+        echo "✅ Successfully created/updated release on Xposed repo: ${{ steps.version_info.outputs.xposed_tag }}"

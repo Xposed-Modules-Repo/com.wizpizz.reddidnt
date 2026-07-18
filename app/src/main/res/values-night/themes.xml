@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Reddidnt" parent="android:Theme.Material.NoActionBar">
+        <!-- Universal background for older versions -->
+        <item name="android:windowBackground">@color/splash_background_dark</item>
+        <!-- Set status bar to match splash background -->
+        <item name="android:statusBarColor">@color/splash_background_dark</item>
+        <!-- Dark status bar icons for dark background -->
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
