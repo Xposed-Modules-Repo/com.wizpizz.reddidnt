@@ -30,5 +30,6 @@ The exact observed shapes live in `AdBlockMatcherTest` as regression fixtures. P
 5. Add the newly observed method shape as a unit-test fixture before device testing.
 6. Install a debug build, restart Reddit, and check the `Reddidnt` logs for candidate descriptors and installed hook counts.
 7. Exercise feeds and comment threads with each toggle both enabled and disabled.
+8. After device validation, update `TESTED_REDDIT_VERSION_NAME` and `TESTED_REDDIT_VERSION_CODE` so the app reports the new compatibility baseline.
 
 Do not add obfuscated class or method names to production matching rules. Do not install multiple broadly matched hooks: ambiguous discovery must fail closed. If a broad discovery tool becomes necessary, build it as separate debug tooling rather than adding alternate production hook paths.

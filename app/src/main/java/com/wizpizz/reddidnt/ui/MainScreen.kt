@@ -31,19 +31,32 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import com.wizpizz.reddidnt.BuildConfig
 import com.wizpizz.reddidnt.R
 import com.wizpizz.reddidnt.REDDIT_PACKAGE
+import com.wizpizz.reddidnt.RedditCompatibility
+import com.wizpizz.reddidnt.RedditCompatibilityStatus
+import com.wizpizz.reddidnt.TESTED_REDDIT_VERSION_NAME
 import com.wizpizz.reddidnt.preferences.AdBlockPreferences
+import com.wizpizz.reddidnt.readRedditCompatibility
 import io.github.libxposed.service.XposedService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
 fun MainScreen(service: XposedService?, scopeRefreshEvent: Long) {
+    val context = LocalContext.current
     val preferences = remember(service) {
         service?.getRemotePreferences(AdBlockPreferences.GROUP)
     }
@@ -58,6 +71,9 @@ fun MainScreen(service: XposedService?, scopeRefreshEvent: Long) {
             if (service == null) ModuleStatus.FRAMEWORK_UNAVAILABLE
             else ModuleStatus.CHECKING_SCOPE,
         )
+    }
+    var redditCompatibility by remember(context) {
+        mutableStateOf(readRedditCompatibility(context.applicationContext))
     }
 
     LaunchedEffect(service, scopeRefreshEvent) {
@@ -74,6 +90,12 @@ fun MainScreen(service: XposedService?, scopeRefreshEvent: Long) {
                         onFailure = { ModuleStatus.SCOPE_CHECK_FAILED },
                     )
             }
+        }
+    }
+
+    LaunchedEffect(scopeRefreshEvent) {
+        redditCompatibility = withContext(Dispatchers.IO) {
+            readRedditCompatibility(context.applicationContext)
         }
     }
 
@@ -134,6 +156,8 @@ fun MainScreen(service: XposedService?, scopeRefreshEvent: Long) {
                 }
 
                 Spacer(Modifier.height(32.dp))
+                RedditCompatibilityCard(compatibility = redditCompatibility)
+                Spacer(Modifier.height(12.dp))
                 StatusCard(status = moduleStatus)
                 Spacer(Modifier.height(24.dp))
                 Text(
@@ -174,6 +198,63 @@ fun MainScreen(service: XposedService?, scopeRefreshEvent: Long) {
 }
 
 @Composable
+private fun RedditCompatibilityCard(compatibility: RedditCompatibility) {
+    val title = "Compatibility"
+    val baseDescription = "Reddidn't ${BuildConfig.VERSION_NAME} was developed for " +
+        "Reddit $TESTED_REDDIT_VERSION_NAME(+)."
+    val linkColor = MaterialTheme.colorScheme.primary
+    val description = buildAnnotatedString {
+        append(baseDescription)
+        when (compatibility.status) {
+            RedditCompatibilityStatus.SAME_OR_OLDER ->
+                append(" Installed: ${compatibility.installedVersionName}.")
+            RedditCompatibilityStatus.NEWER -> {
+                append(" Installed: ${compatibility.installedVersionName}. ")
+                append("If ad blocking is not working, ")
+                withLink(
+                    LinkAnnotation.Url(
+                        url = RELEASES_URL,
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = linkColor,
+                                textDecoration = TextDecoration.Underline,
+                            ),
+                        ),
+                    ),
+                ) {
+                    append("check for a newer Reddidn't release")
+                }
+                append(" or wait for an update.")
+            }
+            RedditCompatibilityStatus.NOT_INSTALLED -> append(" Reddit is not installed.")
+            RedditCompatibilityStatus.UNAVAILABLE ->
+                append(" The installed Reddit version could not be read.")
+        }
+    }
+
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ),
+        shape = MaterialTheme.shapes.large,
+    ) {
+        Column(Modifier.fillMaxWidth().padding(20.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = description,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
+    }
+}
+
+private const val RELEASES_URL = "https://github.com/oenderg/Reddidnt/releases"
+
+@Composable
 private fun StatusCard(status: ModuleStatus) {
     val (container, content) = when (status) {
         ModuleStatus.READY ->
@@ -208,7 +289,7 @@ private fun StatusCard(status: ModuleStatus) {
                 text = title,
                 color = content,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
             )
             Text(
                 text = description,
