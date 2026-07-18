@@ -12,8 +12,8 @@ android {
     defaultConfig {
         applicationId = "com.wizpizz.reddidnt"
         minSdk = 29
-        versionCode = 7
-        versionName = "1.2.2"
+        versionCode = 8
+        versionName = "2.0.0"
 
     }
 
