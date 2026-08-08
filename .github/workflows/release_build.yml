@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    if: github.repository == 'oenderg/Reddidnt'
     runs-on: ubuntu-latest
     # Grant permissions for creating releases and uploading assets
     permissions:

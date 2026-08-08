@@ -1,0 +1,83 @@
+name: Verify and mirror source
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: verify-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.repository == 'oenderg/Reddidnt'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Test, lint, and assemble
+        run: ./gradlew testDebugUnitTest lintDebug assembleDebug
+
+  mirror-source:
+    name: Mirror verified source
+    needs: verify
+    if: >-
+      github.event_name == 'push' &&
+      github.repository == 'oenderg/Reddidnt' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      XPOSED_REPO: Xposed-Modules-Repo/com.wizpizz.reddidnt
+      XPOSED_BOOTSTRAP_HEAD: 386121b183965dd8a067af227409b288ede0ae8e
+      XPOSED_ARCHIVE_BRANCH: archive/metadata-only
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Mirror main to Xposed repository
+        env:
+          GH_TOKEN: ${{ secrets.XPOSED_REPO_TOKEN }}
+        run: |
+          gh auth setup-git
+          git remote add xposed "https://github.com/${XPOSED_REPO}.git"
+          git fetch --no-tags xposed main
+
+          remote_head="$(git rev-parse refs/remotes/xposed/main)"
+
+          if git merge-base --is-ancestor "$remote_head" HEAD; then
+            git push xposed HEAD:refs/heads/main
+            exit 0
+          fi
+
+          if [ "$remote_head" != "$XPOSED_BOOTSTRAP_HEAD" ]; then
+            echo "Xposed main has diverged at $remote_head; refusing to overwrite it."
+            exit 1
+          fi
+
+          archive_head="$(git ls-remote --heads xposed "refs/heads/${XPOSED_ARCHIVE_BRANCH}" | cut -f1)"
+          if [ -n "$archive_head" ] && [ "$archive_head" != "$XPOSED_BOOTSTRAP_HEAD" ]; then
+            echo "Xposed archive branch points to unexpected commit $archive_head; refusing to continue."
+            exit 1
+          fi
+
+          if [ -z "$archive_head" ]; then
+            git push xposed "$remote_head:refs/heads/${XPOSED_ARCHIVE_BRANCH}"
+          fi
+
+          git push \
+            --force-with-lease="refs/heads/main:$remote_head" \
+            xposed \
+            HEAD:refs/heads/main

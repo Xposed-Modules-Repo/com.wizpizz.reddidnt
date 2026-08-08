@@ -10,6 +10,7 @@ on:
 
 jobs:
   sync-release:
+    if: github.repository == 'oenderg/Reddidnt'
     runs-on: ubuntu-latest
     permissions:
       contents: read
